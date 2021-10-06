@@ -129,11 +129,15 @@ In the reading for this week, we saw that gender is central to social dominance 
 
 sdo %>%
   filter(!is.na(female)) %>% 
+  group_by(female) %>% 
+  mutate(avg = mean(sdo5)) %>%
+  ungroup() %>% 
   mutate(female = recode(female,
                          "0" = "Men",
                          "1" = "Women")) %>% 
-  ggplot() + geom_bar(aes(x = sdo5, y = ..prop..), fill = "purple") + labs(title = "SDO Distribution by Sex", 
-                                                  y = "Proportion", x = "SDO") + facet_wrap(~female) + 
+  ggplot() + geom_bar(aes(x = sdo5, y = ..prop..), fill = "purple") + 
+  labs(title = "SDO Distribution by Sex", y = "Proportion", x = "SDO", color = NULL) + 
+      facet_wrap(~female) + geom_vline(aes(xintercept = avg, color = "mean SDO")) +  
       theme(plot.title = element_text(face = "bold", hjust = 0.5, size = 16),
             plot.background = element_rect(fill = "white"),
             axis.title = element_text(face = "bold"),
@@ -189,7 +193,7 @@ ggcorrplot(corr.mat, type = "lower", lab = TRUE)
 
 ```
 
-**ANSWER:** *Answer goes here.*
+**ANSWER:** *The results are completely predictable - favoring BLM and MeToo are highly positively correlated, though these are highly negatively correlated with favoring Trump. The other variables display weak correlations, possibly because of how they are coded. For instance, the* `race` *is coded as a double though its substance is categorical. To find a better measurement of correlation, recoding this would be necessary.*
 
 
 ## Question 6: Data Science Question
@@ -219,9 +223,65 @@ stargazer(mod, type = "text")
 
 ```
 
-**ANSWER:** *Answer goes here.*
+**ANSWER:** *The results are in line with what I'd expect; obviously,* `ideo5` *and* `pid3` *correlate most strongly with whether one voted for Trump, but the* `sdo` *measurement seems to be highly correlated at a high level of statistical confidence. A higher Social Dominance Orientation would make one favor a stronger, more conservative, and racially-charged leader like Trump, so this correlation makes sense.*
 
 
 ## Question 7
 
 **Lastly, just explore the data! This question is open-ended, but make sure you have a theoretical expectation in mind for any relationships between variables you want to explore, and include them in your answer.**
+
+```{r}
+
+sdo %>%
+  filter(!race %in% c(5, 6, 7, 8)) %>% 
+  filter(!is.na(race)) %>% 
+  mutate(race = recode(race,
+                         "1" = "White",
+                         "2" = "Black",
+                         "3" = "Hispanic / Latino",
+                         "4" = "Asian")) %>%
+  group_by(race) %>% 
+  mutate(avg = mean(sdo5)) %>%
+  ungroup() %>% 
+  ggplot() + geom_bar(aes(x = sdo5, y = ..prop..), fill = "purple") + 
+      labs(title = "SDO Distribution by Race", y = "Proportion", x = "SDO", color = NULL) + 
+      facet_wrap(~race) + geom_vline(aes(xintercept = avg, color = "mean SDO")) +  
+      theme(plot.title = element_text(face = "bold", hjust = 0.5, size = 16),
+            plot.background = element_rect(fill = "white"),
+            axis.title = element_text(face = "bold"),
+            strip.background = element_rect(color = "NA", fill = "NA"),
+            strip.text.x = element_text(size = 12, color = "black"))
+
+new_sdo %>%
+  filter(!is.na(rep_vote)) %>% 
+  group_by(rep_vote) %>% 
+  mutate(avg = mean(sdo5)) %>%
+  ungroup() %>% 
+  mutate(rep_vote = recode(rep_vote, "0" = "Did not vote for Trump", "1" = "Voted for Trump")) %>% 
+  ggplot() + geom_bar(aes(x = sdo5, y = ..prop..), fill = "purple") + 
+      labs(title = "SDO Distribution by Trump Vote", y = "Proportion", x = "SDO", color = NULL) + 
+      facet_wrap(~rep_vote) + geom_vline(aes(xintercept = avg, color = "mean SDO")) +  
+      theme(plot.title = element_text(face = "bold", hjust = 0.5, size = 16),
+            plot.background = element_rect(fill = "white"),
+            axis.title = element_text(face = "bold"),
+            strip.background = element_rect(color = "NA", fill = "NA"),
+            strip.text.x = element_text(size = 12, color = "black"))
+
+sdo %>%
+  filter(!is.na(confederate_flag)) %>% 
+  group_by(confederate_flag) %>% 
+  mutate(avg = mean(sdo5)) %>%
+  ungroup() %>% 
+  ggplot() + geom_bar(aes(x = sdo5, y = ..prop..), fill = "purple") + 
+      labs(title = "SDO Distribution by Perception of Confederate Flag", 
+           y = "Proportion", x = "SDO", color = NULL) + 
+      facet_wrap(~confederate_flag) + geom_vline(aes(xintercept = avg, color = "mean SDO")) +  
+      theme(plot.title = element_text(face = "bold", hjust = 0.5, size = 15),
+            plot.background = element_rect(fill = "white"),
+            axis.title = element_text(face = "bold"),
+            strip.background = element_rect(color = "NA", fill = "NA"),
+            strip.text.x = element_text(size = 12, color = "black"))
+
+```
+
+
